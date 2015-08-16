@@ -106,9 +106,17 @@ function loadSource(path) {
 
   var grammar = fs.readFileSync(__dirname + '/grammar.peg').toString();
   var parser = PEG.buildParser(grammar);
-  var bag = parser.parse(file.toString());
+  try {
+    var bag = parser.parse(file.toString());
+  } catch (e) {
+    console.log(path + ':' + e.line + ':' + e.column + ': ' + e.message);
+    return false;
+  }
+
+  console.log(bag);
 
   lines = createLineFuncs(bag);
+  return true;
 }
 
 exports.loadSource = loadSource;

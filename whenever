@@ -8,5 +8,9 @@ cli
   .description('Run your whenever files by passing the path to the file')
   .parse(process.argv);
 
-whenever.loadSource(cli.args[0]);
-whenever.run();
+if (whenever.loadSource(cli.args[0])) {
+  whenever.run();
+  process.exit(0);
+}
+
+process.exit(1);

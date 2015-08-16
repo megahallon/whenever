@@ -27,18 +27,22 @@ compound = c:('defer' / 'again') space '(' space e:expression_bool space ')' spa
 bool_line = l:line_number { return 'N(' + l + ') > 0'; }
 
 primary =
-  para
+  paren
   / integer
   / call
 
-para = '(' space e:expression_integer space ')'  { return '(' + e + ')'; }
+paren = '(' space e:expression_integer space ')'  { return '(' + e + ')'; }
 
 expression_bool =
   l:expression_bool_part space o:operator_bool space r:expression_bool { return l + ' ' + o + ' ' + r; }
+  / o:operator_bool_unary e:expression_bool { return o + ' ' + e; }
   / expression_bool_part
 
+bool_paren = '(' space e:expression_bool space ')'  { return '(' + e + ')'; }
+
 expression_bool_part =
-  bool_line
+  bool_paren
+  / bool_line
   / expression_cmp
 
 expression_cmp =
@@ -70,9 +74,9 @@ integer = '-' i:positive_integer { return -i; }
 positive_integer = i:([0-9]+) { return parseInt(i.join(''), 10); }
 
 operator_bool = '&&' / '||'
-operator_cmp = '==' / '<=' / '>=' / '<' / '>'
+operator_cmp = '!=' / '==' / '<=' / '>=' / '<' / '>'
 operator_integer = '+' / '-' / '*' / '/'
 
-unary_operator = '!'
+operator_bool_unary = '!'
 
 space = [ ]*

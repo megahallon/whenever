@@ -1,10 +1,9 @@
 Whenever
 ========
 
-A fairly complete implementation of the esoteric language [Whenever](http://www.dangermouse.net/esoteric/whenever.html).
-Current limitations (mostly due to lack of test code):
+An interpretator for the esoteric language [Whenever](http://www.dangermouse.net/esoteric/whenever.html).
+It should be fairly complete, however there are some known limitations (mostly due to lack of test code):
 
-* Logical not operator missing
 * "Most standard mathematical functions" missing
 * Floating point numbers not handled
 
