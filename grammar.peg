@@ -1,7 +1,7 @@
 start = l:line*
 
 line = l:line_number space s:statement space ';' [\n\r]+
-     { return 'function line' + l + '() {' + s + '}'; }
+     { return l + '::' + s }
 
 statement = add
             / print
@@ -10,8 +10,8 @@ statement = add
 
 add = a1:add_clause space ',' space a2:add { return a1 + ' ' + a2; }
       / add_clause
-add_clause = l:integer '#' e:expression_integer { if (l == 0) {return ''}; if (l < 0) { l = -l; e = -e; } return 'add("line' + l + '", ' + e + ');' }
-             / l:integer { if (l == 0) {return ''}; e = 1; if (l < 0) { l = -l; e = -e; } return 'add("line' + l + '", ' + e + ');' }
+add_clause = l:integer '#' e:expression_integer { if (l < 0) { l = -l; e = '-' + e; } return 'add(' + l + ', ' + e + ');' }
+             / l:integer { e = 1; if (l < 0) { l = -l; e = -e; } return 'add(' + l + ', ' + e + ');' }
 
 line_number = positive_integer
 
@@ -24,7 +24,7 @@ double_compound =
 compound = c:('defer' / 'again') space '(' space e:expression_bool space ')' space s:(add / print)
          { return c + '(' + e + ', function () { ' + s + ' });' }
 
-bool_line = l:line_number { return 'N("line' + l + '") > 0'; }
+bool_line = l:line_number { return 'N(' + l + ') > 0'; }
 
 primary =
   para
@@ -48,9 +48,10 @@ expression_integer =
   l:primary space o:operator_integer space r:expression_integer { return l + ' ' + o + ' ' + r; }
   / primary
 
-call = N / print / read
+call = N / U / print / read
 
-N = 'N' space '(' space l:line_number space ')' { return 'N("line' + l + '")' }
+N = n:('N' space '(' space line_number space ')') { return n.join(''); }
+U = u:('U' space '(' space integer space ')') { return u.join(''); }
 print = 'print' space '(' space s:(string_expression) space ')' { return 'print(' + s + ');' }
 read = 'read' space '(' space ')'
 

@@ -4,24 +4,18 @@ var _ = require('lodash');
 var fs = require('fs');
 var PEG = require('pegjs');
 
-function getFuncFromString(str) {
-  return _.find(lines, function (el) {
-    return el.name === str;
-  });
-}
-
 function print(str) {
   printFunc(str);
 }
 
-function add(fn, times) {
-  var _fn = getFuncFromString(fn);
-  if (_fn === undefined) {
+function add(line, times) {
+  var fn = lines[line];
+  if (fn === undefined) {
     return;
   }
-  _fn.todo += times;
-  if (_fn.todo < 0) {
-    _fn.todo = 0;
+  fn.todo += times;
+  if (fn.todo < 0) {
+    fn.todo = 0;
   }
 }
 
@@ -50,7 +44,7 @@ function defer(predicate, fn) {
   }
 }
 
-function again(predicate, fn){
+function again(predicate, fn) {
   fn();
 
   if (predicate) {
@@ -58,14 +52,17 @@ function again(predicate, fn){
   }
 }
 
-function N(fn) {
-  var _fn = getFuncFromString(fn);
-  if (_fn === undefined) {
+function N(line) {
+  var fn = lines[line];
+  if (fn === undefined) {
     return 0;
   }
-  return getFuncFromString(fn).todo;
+  return fn.todo;
 }
 
+function U(unicode) {
+  return String.fromCharCode(unicode);
+}
 
 function run() {
   while (true) {
@@ -90,13 +87,18 @@ function run() {
   }
 }
 
-function deStringify(arr) {
-  return _.map(arr, function(el) {
-    var moo;
-    eval('moo = ' + el);
-    moo.todo = 1;
-    return moo;
+function createLineFuncs(arr) {
+  var funcs = {};
+  _.forEach(arr, function (el) {
+    var l = el.split('::');
+    var line = l[0];
+    var body = l[1];
+    var f;
+    eval('f = function () {' + body + '}');
+    f.todo = 1;
+    funcs[line] = f;
   });
+  return funcs;
 }
 
 function loadSource(path) {
@@ -106,7 +108,7 @@ function loadSource(path) {
   var parser = PEG.buildParser(grammar);
   var bag = parser.parse(file.toString());
 
-  lines = deStringify(bag);
+  lines = createLineFuncs(bag);
 }
 
 exports.loadSource = loadSource;

@@ -10,7 +10,7 @@
   "keywords": [
     "esolang"
   ],
-  "author": "Fredrik Hallenberg",
+  "author": "Fredrik Hallenberg <megahallon@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "commander": "^2.8.1",
