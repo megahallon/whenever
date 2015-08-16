@@ -1,0 +1,12 @@
+#!/usr/bin/env node
+
+var whenever = require('./whenever.js');
+var cli = require('commander');
+
+cli
+  .version('1.0')
+  .description('Run your whenever files by passing the path to the file')
+  .parse(process.argv);
+
+whenever.loadSource(cli.args[0]);
+whenever.run();

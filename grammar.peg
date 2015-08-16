@@ -1,0 +1,77 @@
+start = l:line*
+
+line = l:line_number space s:statement space ';' [\n\r]+
+     { return 'function line' + l + '() {' + s + '}'; }
+
+statement = add
+            / print
+            / double_compound
+            / compound
+
+add = a1:add_clause space ',' space a2:add { return a1 + ' ' + a2; }
+      / add_clause
+add_clause = l:integer '#' e:expression_integer { if (l == 0) {return ''}; if (l < 0) { l = -l; e = -e; } return 'add("line' + l + '", ' + e + ');' }
+             / l:integer { if (l == 0) {return ''}; e = 1; if (l < 0) { l = -l; e = -e; } return 'add("line' + l + '", ' + e + ');' }
+
+line_number = positive_integer
+
+double_compound =
+  'again' space '(' space e1:expression_bool space ')' space 'defer' space '(' space e2:expression_bool space ')' space s:(add / print)
+  { return 'again_defer(' + e1 + ', ' + e2 + ', function () { ' + s + ' });' }
+  / 'defer' space '(' space e2:expression_bool space ')' space 'again' space '(' space e1:expression_bool space ')' space s:(add / print)
+  { return 'again_defer(' + e1 + ', ' + e2 + ', function () { ' + s + ' });' }
+
+compound = c:('defer' / 'again') space '(' space e:expression_bool space ')' space s:(add / print)
+         { return c + '(' + e + ', function () { ' + s + ' });' }
+
+bool_line = l:line_number { return 'N("line' + l + '") > 0'; }
+
+primary =
+  para
+  / integer
+  / call
+
+para = '(' space e:expression_integer space ')'  { return '(' + e + ')'; }
+
+expression_bool =
+  l:expression_bool_part space o:operator_bool space r:expression_bool { return l + ' ' + o + ' ' + r; }
+  / expression_bool_part
+
+expression_bool_part =
+  bool_line
+  / expression_cmp
+
+expression_cmp =
+  l:expression_integer space o:operator_cmp space r:expression_integer { return l + ' ' + o + ' ' + r; }
+
+expression_integer =
+  l:primary space o:operator_integer space r:expression_integer { return l + ' ' + o + ' ' + r; }
+  / primary
+
+call = N / print / read
+
+N = 'N' space '(' space l:line_number space ')' { return 'N("line' + l + '")' }
+print = 'print' space '(' space s:(string_expression) space ')' { return 'print(' + s + ');' }
+read = 'read' space '(' space ')'
+
+string_expression =
+  l:string_expression_1 space '+' space r:string_expression { return l + '+' + r; }
+  / string_expression_1
+
+string_expression_1 =
+  string
+  / e:expression_integer { return '(' + e + ')' }
+
+string = '"' s:[^"]* '"' { return '"' + s.join('') + '"'; }
+
+integer = '-' i:positive_integer { return -i; }
+          / positive_integer
+positive_integer = i:([0-9]+) { return parseInt(i.join(''), 10); }
+
+operator_bool = '&&' / '||'
+operator_cmp = '==' / '<=' / '>=' / '<' / '>'
+operator_integer = '+' / '-' / '*' / '/'
+
+unary_operator = '!'
+
+space = [ ]*

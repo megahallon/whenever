@@ -1,0 +1,26 @@
+{
+  "name": "whenever",
+  "version": "1.0.0",
+  "description": "An implementation of Whenever",
+  "main": "whenever.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/megahallon/whenever"
+  },
+  "keywords": [
+    "esolang"
+  ],
+  "author": "Fredrik Hallenberg",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^2.8.1",
+    "lodash": "^3.10.0",
+    "pegjs": "^0.8.0"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-nodeunit": "~0.4.1"
+  }
+}
