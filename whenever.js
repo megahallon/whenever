@@ -20,10 +20,7 @@ function read() {
     input = input.slice(1);
     return i.charCodeAt(0);
   }
-  else {
-    console.log("\nnothing to read");
-    process.exit(1);
-  }
+  return 0;
 }
 
 function add(line, times) {
