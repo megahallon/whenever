@@ -4,27 +4,28 @@ line = l:line_number space s:statement space ';' [\n\r]+
      { return l + '::' + s }
 
 statement = add
+            / put
             / print
             / double_compound
             / compound
 
 add = a1:add_clause space ',' space a2:add { return a1 + ' ' + a2; }
       / add_clause
-add_clause = l:integer '#' e:expression_integer { if (l < 0) { l = -l; e = '-' + e; } return 'add(' + l + ', ' + e + ');' }
+add_clause = l:integer '#' e:expression_integer { if (l < 0) { l = -l; e = '-(' + e + ')'; } return 'add(' + l + ', ' + e + ');' }
              / l:integer { e = 1; if (l < 0) { l = -l; e = -e; } return 'add(' + l + ', ' + e + ');' }
 
 line_number = positive_integer
 
 double_compound =
-  'again' space '(' space e1:expression_bool space ')' space 'defer' space '(' space e2:expression_bool space ')' space s:(add / print)
+  'again' space '(' space e1:expression_bool space ')' space 'defer' space '(' space e2:expression_bool space ')' space s:(add / print / put)
   { return 'again_defer(' + e1 + ', ' + e2 + ', function () { ' + s + ' });' }
-  / 'defer' space '(' space e2:expression_bool space ')' space 'again' space '(' space e1:expression_bool space ')' space s:(add / print)
+  / 'defer' space '(' space e2:expression_bool space ')' space 'again' space '(' space e1:expression_bool space ')' space s:(add / print / put)
   { return 'again_defer(' + e1 + ', ' + e2 + ', function () { ' + s + ' });' }
 
-compound = c:('defer' / 'again') space '(' space e:expression_bool space ')' space s:(add / print)
+compound = c:('defer' / 'again') space '(' space e:expression_bool space ')' space s:(add / print / put)
          { return c + '(' + e + ', function () { ' + s + ' });' }
 
-bool_line = l:line_number { return 'N(' + l + ') > 0'; }
+bool_line = l:line_number { return '(N(' + l + ') > 0)'; }
 
 primary =
   paren
@@ -52,12 +53,13 @@ expression_integer =
   l:primary space o:operator_integer space r:expression_integer { return l + ' ' + o + ' ' + r; }
   / primary
 
-call = N / U / print / read
+call = N / U / put / print / read
 
-N = n:('N' space '(' space line_number space ')') { return n.join(''); }
-U = u:('U' space '(' space integer space ')') { return u.join(''); }
+N = n:('N' space '(' space expression_integer space ')') { return n.join(''); }
+U = u:('U' space '(' space expression_integer space ')') { return u.join(''); }
 print = 'print' space '(' space s:(string_expression) space ')' { return 'print(' + s + ');' }
-read = 'read' space '(' space ')'
+put = 'put' space '(' space s:(string_expression) space ')' { return 'put(' + s + ');' }
+read = 'read' space '(' space ')' { return 'read()' }
 
 string_expression =
   l:string_expression_1 space '+' space r:string_expression { return l + '+' + r; }
@@ -75,7 +77,7 @@ positive_integer = i:([0-9]+) { return parseInt(i.join(''), 10); }
 
 operator_bool = '&&' / '||'
 operator_cmp = '!=' / '==' / '<=' / '>=' / '<' / '>'
-operator_integer = '+' / '-' / '*' / '/'
+operator_integer = '+' / '-' / '*' / '/' / '%'
 
 operator_bool_unary = '!'
 

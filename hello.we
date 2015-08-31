@@ -1,0 +1,10 @@
+1 put("H");
+2 defer(1) put("e");
+3 defer(2 || 15 || (N(3) < 2 && 9)) put("l");
+5 defer(15 || N(3) > 1 || (N(5) < 2 && 7)) put("o");
+6 defer(15 || N(5) > 1) put(" ");
+7 defer(6) put("W");
+9 defer(7 || 5) put("r");
+10 defer(9 || 3) put("d");
+11 defer(10) print("!");
+15 3#2, 5;

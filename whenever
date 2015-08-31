@@ -9,7 +9,7 @@ cli
   .parse(process.argv);
 
 if (whenever.loadSource(cli.args[0])) {
-  whenever.run();
+  whenever.run(cli.args[1]);
   process.exit(0);
 }
 

@@ -8,6 +8,24 @@ function print(str) {
   printFunc(str);
 }
 
+function put(str) {
+  process.stdout.write(str);
+}
+
+var input = "";
+
+function read() {
+  if (input.length) {
+    var i = input[0];
+    input = input.slice(1);
+    return i.charCodeAt(0);
+  }
+  else {
+    console.log("\nnothing to read");
+    process.exit(1);
+  }
+}
+
 function add(line, times) {
   var fn = lines[line];
   if (fn === undefined) {
@@ -64,7 +82,8 @@ function U(unicode) {
   return String.fromCharCode(unicode);
 }
 
-function run() {
+function run(i) {
+  input = i || "";
   while (true) {
     var totalTodo = _.sum(lines, function(e) {
       return e.todo;
@@ -113,8 +132,6 @@ function loadSource(path) {
     return false;
   }
 
-  console.log(bag);
-
   lines = createLineFuncs(bag);
   return true;
 }
@@ -127,4 +144,7 @@ exports.registerPrint = function (f) {
 
 var lines;
 var currentLine;
-var printFunc = console.log;
+var printFunc = function (str) {
+  process.stdout.write(str + '\n');
+}
+
