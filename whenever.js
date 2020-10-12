@@ -1,22 +1,27 @@
 'use strict';
 
-var _ = require('lodash');
-var fs = require('fs');
-var PEG = require('pegjs');
+const _ = require('lodash');
+const fs = require('fs');
+const PEG = require('pegjs');
+
+let lines;
+let currentLine;
+let input;
+let printFunc = (str) => {
+  process.stdout.write(str);
+};
 
 function print(str) {
-  printFunc(str);
+  printFunc(str + '\n');
 }
 
 function put(str) {
-  process.stdout.write(str);
+  printFunc(str);
 }
-
-var input = "";
 
 function read() {
   if (input.length) {
-    var i = input[0];
+    let i = input[0];
     input = input.slice(1);
     return i.charCodeAt(0);
   }
@@ -24,7 +29,7 @@ function read() {
 }
 
 function add(line, times) {
-  var fn = lines[line];
+  let fn = lines[line];
   if (fn === undefined) {
     return;
   }
@@ -68,7 +73,7 @@ function again(predicate, fn) {
 }
 
 function N(line) {
-  var fn = lines[line];
+  let fn = lines[line];
   if (fn === undefined) {
     return 0;
   }
@@ -81,16 +86,16 @@ function U(unicode) {
 
 function run(i) {
   input = i || "";
+  _.keys(lines).forEach(e => lines[e].todo = 1);
+
   while (true) {
-    var totalTodo = _.sum(lines, function(e) {
-      return e.todo;
-    });
+    let totalTodo = _.sumBy(_.keys(lines), e => lines[e].todo);
 
     if (totalTodo === 0) {
       return;
     }
 
-    var chosen;
+    let chosen;
     do {
       chosen = _.sample(lines);
     } while (chosen.todo === 0);
@@ -104,13 +109,13 @@ function run(i) {
 }
 
 function createLineFuncs(arr) {
-  var funcs = {};
-  _.forEach(arr, function (el) {
-    var l = el.split('::');
-    var line = l[0];
-    var body = l[1];
-    var f;
-    eval('f = function () {' + body + '}');
+  let funcs = {};
+  arr.forEach(el => {
+    let l = el.split('::');
+    let line = l[0];
+    let body = l[1];
+    let f;
+    eval('f = () => {' + body + '}');
     f.todo = 1;
     funcs[line] = f;
   });
@@ -118,14 +123,15 @@ function createLineFuncs(arr) {
 }
 
 function loadSource(path) {
-  var file = fs.readFileSync(path);
+  let file = fs.readFileSync(path);
 
-  var grammar = fs.readFileSync(__dirname + '/grammar.peg').toString();
-  var parser = PEG.buildParser(grammar);
+  let grammar = fs.readFileSync(__dirname + '/grammar.peg').toString();
+  let parser = PEG.buildParser(grammar);
+  let bag;
   try {
-    var bag = parser.parse(file.toString());
+    bag = parser.parse(file.toString());
   } catch (e) {
-    console.log(path + ':' + e.line + ':' + e.column + ': ' + e.message);
+    console.log(`${path}: ${e.line}:${e.column}: ${e.message}`);
     return false;
   }
 
@@ -133,15 +139,10 @@ function loadSource(path) {
   return true;
 }
 
-exports.loadSource = loadSource;
-exports.run = run;
-exports.registerPrint = function (f) {
+function registerPrint(f) {
   printFunc = f;
 };
 
-var lines;
-var currentLine;
-var printFunc = function (str) {
-  process.stdout.write(str + '\n');
-}
-
+exports.loadSource = loadSource;
+exports.run = run;
+exports.registerPrint = registerPrint;
