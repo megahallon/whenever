@@ -12,7 +12,7 @@ statement = add
 add = a1:add_clause space ',' space a2:add { return a1 + ' ' + a2; }
       / add_clause
 add_clause = l:integer '#' e:expression_integer { if (l < 0) { l = -l; e = '-(' + e + ')'; } return 'add(' + l + ', ' + e + ');' }
-             / l:integer { e = 1; if (l < 0) { l = -l; e = -e; } return 'add(' + l + ', ' + e + ');' }
+             / l:integer { let e = 1; if (l < 0) { l = -l; e = -e; } return 'add(' + l + ', ' + e + ');' }
 
 line_number = positive_integer
 

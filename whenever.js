@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const fs = require('fs');
-const PEG = require('pegjs');
+const peg = require('pegjs');
 
 let lines;
 let currentLine;
@@ -126,12 +126,13 @@ function loadSource(path) {
   let file = fs.readFileSync(path);
 
   let grammar = fs.readFileSync(__dirname + '/grammar.peg').toString();
-  let parser = PEG.buildParser(grammar);
+  let parser = peg.generate(grammar);
   let bag;
   try {
     bag = parser.parse(file.toString());
   } catch (e) {
-    console.log(`${path}: ${e.line}:${e.column}: ${e.message}`);
+    let loc = e.location.start;
+    console.log(`${path}: ${loc.line}:${loc.column}: ${e.message}`);
     return false;
   }
 
