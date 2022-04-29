@@ -13,16 +13,16 @@
   "author": "Fredrik Hallenberg <megahallon@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "commander": "^6.1.0",
-    "lodash": "^4.17.20",
+    "commander": "^9.2.0",
+    "lodash": "^4.17.21",
     "pegjs": "^0.10.0"
   },
   "devDependencies": {
-    "grunt": "^1.3.0",
-    "grunt-cli": "^1.3.2",
-    "grunt-contrib-jshint": "^2.1.0",
-    "grunt-contrib-nodeunit": "^2.1.0",
-    "diff": ">=3.5.0"
+    "diff": ">=5.0.0",
+    "grunt": "^1.5.2",
+    "grunt-cli": "^1.4.3",
+    "grunt-contrib-jshint": "^3.2.0",
+    "grunt-contrib-nodeunit": "^4.0.0"
   },
   "bugs": {
     "url": "https://github.com/megahallon/whenever/issues"
